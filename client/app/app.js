@@ -1,5 +1,5 @@
 angular.module('MyApp', ['ngRoute'])
-  .config(function($routeProvider, $locationProvider, $authProvider) {
+  .config(['$routeProvider', '$locationProvider',  function($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
 
     $routeProvider
@@ -51,9 +51,9 @@ angular.module('MyApp', ['ngRoute'])
         $location.path('/login');
       }
     }
-  })
-  .run(function($rootScope, $window) {
+  }])
+  .run(['$rootScope', '$window', function($rootScope, $window) {
     if ($window.localStorage.user) {
       $rootScope.currentUser = JSON.parse($window.localStorage.user);
     }
-  });
+  }]);
