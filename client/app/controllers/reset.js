@@ -1,5 +1,5 @@
 angular.module('MyApp')
-  .controller('ResetCtrl', ['$scope', 'Account', function($scope, Account) {
+  .controller('ResetCtrl', function($scope, Account) {
     $scope.resetPassword = function() {
       Account.resetPassword($scope.user)
         .then(function(response) {
@@ -13,4 +13,4 @@ angular.module('MyApp')
           };
         });
     }
-  }]);
+  });

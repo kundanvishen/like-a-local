@@ -1,5 +1,5 @@
-angular.module('MyApp', ['ngRoute'])
-  .config(['$routeProvider', '$locationProvider',  function($routeProvider, $locationProvider) {
+angular.module('MyApp', ['ngRoute', 'satellizer'])
+  .config(['$routeProvider', '$locationProvider', '$authProvider', function($routeProvider, $locationProvider, $authProvider) {
     skipIfAuthenticated.$inject = ["$location", "$auth"];
     loginRequired.$inject = ["$location", "$auth"];
     $locationProvider.html5Mode(true);
@@ -43,9 +43,9 @@ angular.module('MyApp', ['ngRoute'])
 
 
     function skipIfAuthenticated($location, $auth) {
-      if ($auth.isAuthenticated()) {
-        $location.path('/');
-      }
+      // if ($auth.isAuthenticated()) {
+      //   $location.path('/');
+      // }
     }
 
     function loginRequired($location, $auth) {
@@ -54,14 +54,14 @@ angular.module('MyApp', ['ngRoute'])
       }
     }
   }])
-  .run(['$rootScope', '$window', function($rootScope, $window) {
+  .run(["$rootScope", "$window", function($rootScope, $window) {
     if ($window.localStorage.user) {
       $rootScope.currentUser = JSON.parse($window.localStorage.user);
     }
   }]);
 
 angular.module('MyApp')
-  .controller('ContactCtrl', ['$scope', 'Contact',function($scope, Contact) {
+  .controller('ContactCtrl', ["$scope", "Contact", function($scope, Contact) {
     $scope.sendContactForm = function() {
       Contact.send($scope.contact)
         .then(function(response) {
@@ -78,7 +78,7 @@ angular.module('MyApp')
   }]);
 
 angular.module('MyApp')
-  .controller('ForgotCtrl', ['$scope', 'Account', function($scope, Account) {
+  .controller('ForgotCtrl', ["$scope", "Account", function($scope, Account) {
     $scope.forgotPassword = function() {
       Account.forgotPassword($scope.user)
         .then(function(response) {
@@ -95,24 +95,24 @@ angular.module('MyApp')
   }]);
 
 angular.module('MyApp')
-  .controller('HeaderCtrl', ['$scope', '$location', '$window', function($scope, $location, $window) {
+  .controller('HeaderCtrl', ["$scope", "$location", "$window", "$auth", function($scope, $location, $window, $auth) {
     $scope.isActive = function (viewLocation) {
       return viewLocation === $location.path();
     };
     
     $scope.isAuthenticated = function() {
-      // return $auth.isAuthenticated();
+      return $auth.isAuthenticated();
     };
     
     $scope.logout = function() {
-      // $auth.logout();
+      $auth.logout();
       delete $window.localStorage.user;
       $location.path('/');
     };
   }]);
 
 angular.module('MyApp')
-  .controller('LoginCtrl', ['$scope', '$rootScope', '$location', '$window', '$auth', function($scope, $rootScope, $location, $window, $auth) {
+  .controller('LoginCtrl', ["$scope", "$rootScope", "$location", "$window", "$auth", function($scope, $rootScope, $location, $window, $auth) {
     $scope.login = function() {
       $auth.login($scope.user)
         .then(function(response) {
@@ -148,7 +148,7 @@ angular.module('MyApp')
     };
   }]);
 angular.module('MyApp')
-  .controller('ProfileCtrl', ['$scope', '$rootScope', '$location', '$window', '$auth', 'Account', function($scope, $rootScope, $location, $window, $auth, Account) {
+  .controller('ProfileCtrl', ["$scope", "$rootScope", "$location", "$window", "$auth", "Account", function($scope, $rootScope, $location, $window, $auth, Account) {
     $scope.profile = $rootScope.currentUser;
 
     $scope.updateProfile = function() {
@@ -224,7 +224,7 @@ angular.module('MyApp')
     };
   }]);
 angular.module('MyApp')
-  .controller('ResetCtrl', ['$scope', 'Account', function($scope, Account) {
+  .controller('ResetCtrl', ["$scope", "Account", function($scope, Account) {
     $scope.resetPassword = function() {
       Account.resetPassword($scope.user)
         .then(function(response) {
@@ -241,7 +241,7 @@ angular.module('MyApp')
   }]);
 
 angular.module('MyApp')
-  .controller('SignupCtrl', ['$scope', '$rootScope', '$location', '$window', '$auth', function($scope, $rootScope, $location, $window, $auth) {
+  .controller('SignupCtrl', ["$scope", "$rootScope", "$location", "$window", "$auth", function($scope, $rootScope, $location, $window, $auth) {
     $scope.signup = function() {
       $auth.signup($scope.user)
         .then(function(response) {
@@ -277,9 +277,28 @@ angular.module('MyApp')
         });
     };
   }]);
-
 angular.module('MyApp')
-  .factory('Contact', ['$http', function($http) {
+  .factory('Account', ["$http", function($http) {
+    return {
+      updateProfile: function(data) {
+        return $http.put('/account', data);
+      },
+      changePassword: function(data) {
+        return $http.put('/account', data);
+      },
+      deleteAccount: function() {
+        return $http.delete('/account');
+      },
+      forgotPassword: function(data) {
+        return $http.post('/forgot', data);
+      },
+      resetPassword: function(data) {
+        return $http.post('/reset', data);
+      }
+    };
+  }]);
+angular.module('MyApp')
+  .factory('Contact', ["$http", function($http) {
     return {
       send: function(data) {
         return $http.post('/contact', data);

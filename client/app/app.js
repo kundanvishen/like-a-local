@@ -1,5 +1,5 @@
-angular.module('MyApp', ['ngRoute'])
-  .config(['$routeProvider', '$locationProvider',  function($routeProvider, $locationProvider) {
+angular.module('MyApp', ['ngRoute', 'satellizer'])
+  .config(['$routeProvider', '$locationProvider', '$authProvider', function($routeProvider, $locationProvider, $authProvider) {
     $locationProvider.html5Mode(true);
 
     $routeProvider
@@ -41,9 +41,9 @@ angular.module('MyApp', ['ngRoute'])
 
 
     function skipIfAuthenticated($location, $auth) {
-      if ($auth.isAuthenticated()) {
-        $location.path('/');
-      }
+      // if ($auth.isAuthenticated()) {
+      //   $location.path('/');
+      // }
     }
 
     function loginRequired($location, $auth) {
@@ -52,8 +52,8 @@ angular.module('MyApp', ['ngRoute'])
       }
     }
   }])
-  .run(['$rootScope', '$window', function($rootScope, $window) {
+  .run(function($rootScope, $window) {
     if ($window.localStorage.user) {
       $rootScope.currentUser = JSON.parse($window.localStorage.user);
     }
-  }]);
+  });
